@@ -1,0 +1,45 @@
+{
+  "검은양": {
+    "image": "/img/검은양.webp",
+    "characters": [
+      { "name": "이세하", "image": "/img/이세하.webp" },
+      { "name": "이슬비", "image": "/img/이슬비.webp" },
+      { "name": "서유리", "image": "/img/서유리.webp" },
+      { "name": "제이", "image": "/img/제이.webp" },
+      { "name": "미스틸테인", "image": "/img/미스틸테인.webp" },
+      { "name": "윤리아", "image": "/img/윤리아.webp" }
+    ]
+  },
+  "늑대개": {
+    "image": "/img/늑대개.webp",
+    "characters": [
+      { "name": "나타", "image": "/img/나타.webp" },
+      { "name": "레비아", "image": "/img/레비아.webp" },
+      { "name": "하피", "image": "/img/하피.webp" },
+      { "name": "티나", "image": "/img/티나.webp" },
+      { "name": "바이올렛", "image": "/img/바이올렛.webp" },
+      { "name": "트리스", "image": "/img/트리스.webp" }
+    ]
+  },
+  "사냥터지기": {
+    "image": "/img/사냥터지기.webp",
+    "characters": [
+      { "name": "볼프강", "image": "/img/볼프강.webp" },
+      { "name": "루나", "image": "/img/루나.webp" },
+      { "name": "소마", "image": "/img/소마.webp" },
+      { "name": "파이", "image": "/img/파이.webp" },
+      { "name": "세트", "image": "/img/세트.webp" },
+      { "name": "모아", "image": "/img/모아.webp" }
+    ]
+  },
+  "시궁쥐": {
+    "image": "/img/시궁쥐.webp",
+    "characters": [
+      { "name": "미래", "image": "/img/미래.webp" },
+      { "name": "김철수", "image": "/img/김철수.webp" },
+      { "name": "은하", "image": "/img/은하.webp" },
+      { "name": "루시", "image": "/img/루시.webp" },
+      { "name": "애리", "image": "/img/애리.webp" }
+    ]
+  }
+}
