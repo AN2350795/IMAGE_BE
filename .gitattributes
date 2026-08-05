@@ -1,0 +1,19 @@
+# 리눅스 컨테이너와 윈도우 호스트를 번갈아 쓰기 때문에 저장소와 체크아웃 모두
+# LF 로 통일한다. 통일하지 않으면 같은 파일이 줄바꿈만 달라 계속 수정된 것으로
+# 표시되고, 셸 스크립트는 컨테이너 안에서 실행 자체가 실패한다.
+* text=auto eol=lf
+
+# 윈도우에서만 실행되는 스크립트는 CRLF 를 유지해야 한다.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 사람이 직접 고치는 파일이 아니라서 리뷰 화면에서 접어 둔다.
+uv.lock linguist-generated=true
+
+# 바이너리는 줄바꿈 변환 대상이 아니다.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
