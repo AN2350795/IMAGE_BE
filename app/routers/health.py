@@ -1,17 +1,14 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from database import get_db
+from app.database import get_db
 
-app = FastAPI()
+router = APIRouter(prefix="/health", tags=["health"])
 
-@app.get("/")
-def read_root():
-    return {"Hello": "Secret Backend Project"}
 
-@app.get("/health/db")
+@router.get("/db")
 def health_db(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
