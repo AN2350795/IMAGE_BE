@@ -1,0 +1,5 @@
+# devcontainer 로 접속할 때만 적용되는 오버라이드.
+# 서버는 컨테이너가 자동으로 띄우지 않고, 접속한 터미널에서 직접 실행한다.
+services:
+  app:
+    command: sleep infinity
