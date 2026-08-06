@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 
-from app.routers import health
+from app.routers import health, illustrations
 
 app = FastAPI(title="IMAGE_BE")
 
 app.include_router(health.router)
+app.include_router(illustrations.router)
 
 
 @app.get("/")

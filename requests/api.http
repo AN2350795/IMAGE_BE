@@ -1,5 +1,38 @@
-GET http://127.0.0.1:8000
+### API 테스트 (VS Code REST Client 용)
+@baseUrl = http://127.0.0.1:8000
 
-###
+### 1. 헬스 체크
+GET {{baseUrl}}/health
 
-GET http://127.0.0.1:8000/health/db
+
+### 2. 전체 일러스트 조회 (기본 20개, 최신순)
+GET {{baseUrl}}/illustrations
+Content-Type: application/json
+
+### 3. 페이지네이션 테스트 (2페이지, 10개씩)
+GET {{baseUrl}}/illustrations?page=2&limit=10
+Content-Type: application/json
+
+### 4. 팀 필터 (예: 검은양 팀 ID 1)
+GET {{baseUrl}}/illustrations?team_id=1
+Content-Type: application/json
+
+### 5. 캐릭터 필터 (예: 이세하 캐릭터 ID 1)
+GET {{baseUrl}}/illustrations?character_id=1
+Content-Type: application/json
+
+### 6. 대분류 필터 (예: 일러스트 대분류 ID 1)
+GET {{baseUrl}}/illustrations?major_id=1
+Content-Type: application/json
+
+### 7. 테마 필터 (예: 4월의 고양이 테마 ID 1)
+GET {{baseUrl}}/illustrations?theme_id=1
+Content-Type: application/json
+
+### 8. 복합 필터 (팀 + 대분류)
+GET {{baseUrl}}/illustrations?team_id=1&major_id=1
+Content-Type: application/json
+
+### 9. 복합 필터 (캐릭터 + 유형)
+GET {{baseUrl}}/illustrations?character_id=1&type_ids=1&type_ids=2
+Content-Type: application/json
