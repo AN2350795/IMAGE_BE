@@ -10,6 +10,7 @@ dependencies = [
     # PyMySQL 이 MySQL 8 의 caching_sha2_password 인증에 사용한다.
     "cryptography",
     "pydantic-settings",
+    "alembic>=1.19.0",
 ]
 
 [dependency-groups]

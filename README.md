@@ -141,8 +141,20 @@ GET http://127.0.0.1:8000/health/db  # {"database": "ok"}
 
 `requests/api.http` 파일로도 바로 호출해 볼 수 있다.
 
-## 알려진 제약
+## 데이터베이스 마이그레이션 (Alembic)
 
-데이터베이스 스키마는 `docker/mysql/init/01-charset.sql` 로만 관리된다. 이 스크립트는
-볼륨이 비어 있는 최초 1회에만 실행되므로 머신 간 스키마 동기화 수단이 되지 못한다.
-모델이 생기기 시작하면 Alembic 같은 마이그레이션 도구로 옮기는 것이 좋다.
+데이터베이스 스키마 변경 이력을 관리하고 각 환경(로컬, 배포) 간 일관성을 유지하기 위해 **Alembic**을 사용한다.
+
+**1. 모델 변경 후 마이그레이션 생성**
+ORM 모델(`app/database.py`의 `Base`를 상속한 클래스들)을 추가하거나 수정한 뒤, 아래 명령어로 변경 사항이 담긴 스크립트를 생성한다.
+
+```bash
+uv run alembic revision --autogenerate -m "마이그레이션 설명(예: create users table)"
+```
+
+**2. 마이그레이션 적용 (DB 구조 업데이트)**
+위에서 생성된 스크립트 혹은 다른 팀원이 추가한 변경사항을 현재 DB에 반영한다.
+
+```bash
+uv run alembic upgrade head
+```
