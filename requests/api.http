@@ -36,3 +36,15 @@ Content-Type: application/json
 ### 9. 복합 필터 (캐릭터 + 유형)
 GET {{baseUrl}}/illustrations?character_id=1&type_ids=1&type_ids=2
 Content-Type: application/json
+
+### 10. 복합 필터 (여러 캐릭터 선택)
+GET {{baseUrl}}/illustrations?character_id=1&character_id=2&page=11
+Content-Type: application/json
+
+### 11. 복합 필터 (여러 테마 선택)
+GET {{baseUrl}}/illustrations?theme_id=1&theme_id=2&page=3
+Content-Type: application/json
+
+### 12. 복합 필터 (여러 캐릭터 + 여러 테마)
+GET {{baseUrl}}/illustrations?character_id=3&character_id=2&theme_id=1&theme_id=1
+Content-Type: application/json

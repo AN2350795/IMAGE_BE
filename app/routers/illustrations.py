@@ -16,9 +16,9 @@ def get_illustrations(
     page: int = Query(1, ge=1, description="페이지 번호"),
     limit: int = Query(20, ge=1, le=100, description="페이지 당 항목 수"),
     team_id: Optional[int] = Query(None, description="필터: 팀 ID"),
-    character_id: Optional[int] = Query(None, description="필터: 캐릭터 ID"),
+    character_id: Optional[List[int]] = Query(None, description="필터: 캐릭터 ID"),
     major_id: Optional[int] = Query(None, description="필터: 대분류 ID"),
-    theme_id: Optional[int] = Query(None, description="필터: 테마 ID"),
+    theme_id: Optional[List[int]] = Query(None, description="필터: 테마 ID"),
     type_ids: Optional[List[int]] = Query(None, description="필터: 여러 유형 ID 목록"),
     db: Session = Depends(get_db)
 ):
