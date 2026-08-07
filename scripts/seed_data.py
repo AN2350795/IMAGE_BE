@@ -107,13 +107,18 @@ def seed():
             path = item.get("path")
             existing_ill = db.query(Illustration).filter(Illustration.path == path).first()
             if not existing_ill:
-                char_fullname = item.get("character_fullname")
-                major_name = item.get("major")
+                char_name = item.get("character_fullname")
+                team_name = item.get("team")
+                expected_char_fullname = f"{team_name} {char_name}"
+                
+                raw_major_name = item.get("major")
+                major_name = raw_major_name.replace(" 아바타", "") if raw_major_name else None
+                
                 theme_name = item.get("theme")
                 item_types = item.get("type", [])
                 
                 # Fetch objects
-                char_id = characters[char_fullname].id if char_fullname in characters else None
+                char_id = characters[expected_char_fullname].id if expected_char_fullname in characters else None
                 major_id = majors[major_name].id if major_name in majors else None
                 theme_id = themes[theme_name].id if theme_name in themes else None
                 type_objs = [types[t] for t in item_types if t in types]

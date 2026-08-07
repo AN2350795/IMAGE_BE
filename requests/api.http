@@ -2,7 +2,7 @@
 @baseUrl = http://127.0.0.1:8000
 
 ### 1. 헬스 체크
-GET {{baseUrl}}/health
+GET {{baseUrl}}/health/db
 
 
 ### 2. 전체 일러스트 조회 (기본 20개, 최신순)

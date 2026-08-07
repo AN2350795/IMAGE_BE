@@ -20,7 +20,8 @@ class IllustrationService:
 
         if character_id:
             query = query.filter(Illustration.character_id == character_id)
-        elif team_id:
+        
+        if team_id:
             query = query.join(Illustration.character).filter(Character.team_id == team_id)
 
         if major_id:
@@ -30,8 +31,7 @@ class IllustrationService:
             query = query.filter(Illustration.theme_id == theme_id)
 
         if type_ids:
-            for t_id in type_ids:
-                query = query.filter(Illustration.types.any(Type.id == t_id))
+            query = query.filter(Illustration.types.any(Type.id.in_(type_ids)))
 
         total = query.count()
 
