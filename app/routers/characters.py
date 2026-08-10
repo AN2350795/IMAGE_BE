@@ -19,7 +19,7 @@ def get_character_filter(db: Session = Depends(get_db)):
         result[team.name] = {
             "image": f"/img/{team.name}.webp",
             "characters": [
-                {"name": c.name, "image": f"/img/{c.name}.webp"} 
+                {"id": c.id, "name": c.name, "image": f"/img/{c.name}.webp"} 
                 for c in team.characters
             ]
         }
