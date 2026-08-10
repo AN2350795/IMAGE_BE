@@ -127,48 +127,89 @@ def seed():
         for c in db.query(Character).all():
             characters[c.fullname] = c
 
-        # --- 4. Insert Illustrations in reverse order (bottom to top, oldest first) ---
-        print("Inserting illustrations in reverse order...")
+        # --- 4. Insert/Update Illustrations in reverse order (bottom to top, oldest first) ---
+        print("Caching existing illustrations...")
+        # Pre-fetch all illustrations to memory (dict by path) for O(1) lookup
+        existing_ills = {ill.path: ill for ill in db.query(Illustration).all()}
+
+        print("Processing illustrations...")
         new_illustrations = 0
+        updated_illustrations = 0
         for item in reversed(output_data):
             path = item.get("path")
-            existing_ill = db.query(Illustration).filter(Illustration.path == path).first()
+            expected_char_fullname = item.get("character_fullname")
+            
+            raw_major_name = item.get("major")
+            major_name = raw_major_name.replace(" 아바타", "") if raw_major_name else None
+            
+            theme_name = item.get("theme")
+            item_types = item.get("type", [])
+            
+            # Fetch objects
+            char_id = characters[expected_char_fullname].id if expected_char_fullname in characters else None
+            major_id = majors[major_name].id if major_name in majors else None
+            theme_id = themes[theme_name].id if theme_name in themes else None
+            type_objs = [types[t] for t in item_types if t in types]
+            
+            order = item.get("order", 0)
+            is_new = item.get("is_new", False)
+            extra = item.get("extra", [])
+            
+            existing_ill = existing_ills.get(path)
             if not existing_ill:
-                expected_char_fullname = item.get("character_fullname")
-                
-                raw_major_name = item.get("major")
-                major_name = raw_major_name.replace(" 아바타", "") if raw_major_name else None
-                
-                theme_name = item.get("theme")
-                item_types = item.get("type", [])
-                
-                # Fetch objects
-                char_id = characters[expected_char_fullname].id if expected_char_fullname in characters else None
-                major_id = majors[major_name].id if major_name in majors else None
-                theme_id = themes[theme_name].id if theme_name in themes else None
-                type_objs = [types[t] for t in item_types if t in types]
-                
                 ill = Illustration(
                     filename=item.get("filename"),
                     path=path,
                     character_id=char_id,
                     major_id=major_id,
                     theme_id=theme_id,
-                    order=item.get("order", 0),
-                    is_new=item.get("is_new", False),
-                    extra=item.get("extra", []),
+                    order=order,
+                    is_new=is_new,
+                    extra=extra,
                     types=type_objs
                 )
                 db.add(ill)
                 new_illustrations += 1
                 
-                # Commit every 100 insertions
-                if new_illustrations % 100 == 0:
+                # Commit periodically
+                if new_illustrations % 1000 == 0:
                     db.commit()
+            else:
+                # Check for updates to sync DB with JSON changes
+                needs_update = False
+                if existing_ill.character_id != char_id:
+                    existing_ill.character_id = char_id
+                    needs_update = True
+                if existing_ill.major_id != major_id:
+                    existing_ill.major_id = major_id
+                    needs_update = True
+                if existing_ill.theme_id != theme_id:
+                    existing_ill.theme_id = theme_id
+                    needs_update = True
+                if existing_ill.order != order:
+                    existing_ill.order = order
+                    needs_update = True
+                if existing_ill.is_new != is_new:
+                    existing_ill.is_new = is_new
+                    needs_update = True
+                if existing_ill.extra != extra:
+                    existing_ill.extra = extra
+                    needs_update = True
+                
+                current_type_ids = {t.id for t in existing_ill.types}
+                new_type_ids = {t.id for t in type_objs}
+                if current_type_ids != new_type_ids:
+                    existing_ill.types = type_objs
+                    needs_update = True
+                    
+                if needs_update:
+                    updated_illustrations += 1
+                    if updated_illustrations % 1000 == 0:
+                        db.commit()
 
         # Final commit for illustrations
         db.commit()
-        print(f"Successfully seeded {new_illustrations} new illustrations.")
+        print(f"Successfully seeded {new_illustrations} new illustrations, updated {updated_illustrations} illustrations.")
 
     except Exception as e:
         db.rollback()
