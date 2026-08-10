@@ -13,12 +13,16 @@ Content-Type: application/json
 GET {{baseUrl}}/illustrations?page=1&limit=10
 Content-Type: application/json
 
-### 4. 팀 필터 (예: 검은양 팀 ID 1)
-GET {{baseUrl}}/illustrations?team_id=1
+### 4. 팀 필터 (예: 검은양 팀 ID 1, 늑대개 팀 ID 2 복수 선택)
+GET {{baseUrl}}/illustrations?team_id=1,2
 Content-Type: application/json
 
-### 5. 캐릭터 필터 (예: 이세하 캐릭터 ID 101)
-GET {{baseUrl}}/illustrations?character_id=101
+### 5. 캐릭터 필터 (예: 이세하 캐릭터 ID 101, 이슬비 캐릭터 ID 102)
+GET {{baseUrl}}/illustrations?character_id=101,102
+Content-Type: application/json
+
+### 5-1. 팀 & 캐릭터 복합 필터 (예: 늑대개 팀 전체 + 검은양 팀 이세하)
+GET {{baseUrl}}/illustrations?team_id=2&character_id=101
 Content-Type: application/json
 
 ### 6. 대분류 필터 (예: 일러스트 대분류 ID 1)

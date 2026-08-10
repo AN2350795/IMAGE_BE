@@ -24,7 +24,7 @@ def parse_int_list(query: Optional[str] = None) -> Optional[List[int]]:
 def get_illustrations(
     page: int = Query(1, ge=1, description="페이지 번호"),
     limit: int = Query(20, ge=1, le=100, description="페이지 당 항목 수"),
-    team_id: Optional[int] = Query(None, description="필터: 팀 ID"),
+    team_id: Optional[str] = Query(None, description="필터: 팀 ID (쉼표로 구분, 예: 1,2)"),
     character_id: Optional[str] = Query(None, description="필터: 캐릭터 ID (쉼표로 구분, 예: 1,2)"),
     major_id: Optional[int] = Query(None, description="필터: 대분류 ID"),
     theme_id: Optional[str] = Query(None, description="필터: 테마 ID (쉼표로 구분, 예: 1,2)"),
@@ -35,6 +35,7 @@ def get_illustrations(
     일러스트 목록 조회 (필터링 및 페이징 지원)
     """
     # 쉼표로 구분된 문자열을 List[int]로 변환
+    parsed_team_ids = parse_int_list(team_id)
     parsed_character_ids = parse_int_list(character_id)
     parsed_theme_ids = parse_int_list(theme_id)
     parsed_type_ids = parse_int_list(type_ids)
@@ -43,7 +44,7 @@ def get_illustrations(
         db=db,
         page=page,
         limit=limit,
-        team_id=team_id,
+        team_id=parsed_team_ids,
         character_id=parsed_character_ids,
         major_id=major_id,
         theme_id=parsed_theme_ids,

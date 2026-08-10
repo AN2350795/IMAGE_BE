@@ -10,7 +10,7 @@ class IllustrationService:
         db: Session,
         page: int = 1,
         limit: int = 20,
-        team_id: Optional[int] = None,
+        team_id: Optional[List[int]] = None,
         character_id: Optional[List[int]] = None,
         major_id: Optional[int] = None,
         theme_id: Optional[List[int]] = None,
@@ -18,11 +18,18 @@ class IllustrationService:
     ):
         query = db.query(Illustration)
 
-        if character_id:
-            query = query.filter(Illustration.character_id.in_(character_id))
-        
-        if team_id:
-            query = query.join(Illustration.character).filter(Character.team_id == team_id)
+        if team_id or character_id:
+            from sqlalchemy import or_
+            conditions = []
+            
+            if character_id:
+                conditions.append(Illustration.character_id.in_(character_id))
+            
+            if team_id:
+                query = query.join(Illustration.character)
+                conditions.append(Character.team_id.in_(team_id))
+                
+            query = query.filter(or_(*conditions))
 
         if major_id:
             query = query.filter(Illustration.major_id == major_id)
