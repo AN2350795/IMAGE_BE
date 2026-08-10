@@ -125,12 +125,32 @@ uv run ruff format .          # 포맷
 | `filter-theme.json` | 테마 필터 옵션 |
 | `output.json` | 이미지 메타데이터 전체 목록 |
 
+### 상황별 데이터베이스 작업 가이드
+
+**1. 처음 Clone 해서 작업할 때 (초기 세팅)**
+기본 패키지를 설치하고 전체 데이터를 시딩합니다.
 ```bash
-uv run python scripts/seed.py
+uv sync
+uv run python scripts/drop_db.py  # (선택) 기존 DB 초기화
+uv run python scripts/seed_data.py
 ```
 
-현재는 ORM 모델이 없어 파일을 읽어 건수를 확인하는 것까지만 동작한다.
-모델이 추가되면 `scripts/seed.py` 에 적재 로직을 이어서 작성한다.
+**2. 다른 곳의 작업을 Pull 했을 때 (DB 스키마 변동 의심 시)**
+모델(`models.py`) 구조가 변경되었다면 스키마 충돌을 막기 위해 DB를 재설정합니다.
+```bash
+uv sync
+uv run python scripts/drop_db.py
+uv run python scripts/seed_data.py
+```
+
+**3. JSON 데이터(`data/seed/*.json`)만 업데이트된 경우**
+DB 스키마 변경 없이 데이터만 추가/수정된 경우, 기존 데이터를 유지하며 **변경분만 고속으로 동기화(Upsert)** 합니다. DB를 초기화할 필요가 없습니다.
+```bash
+uv run python scripts/seed_data.py
+```
+
+**4. 주의사항 (에러 방지)**
+`ModuleNotFoundError`를 방지하기 위해, 파이썬 스크립트 실행 시 반드시 **`uv run`**을 앞에 붙여 프로젝트 가상 환경에서 실행해야 합니다.
 
 ## 동작 확인
 
