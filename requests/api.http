@@ -10,15 +10,15 @@ GET {{baseUrl}}/illustrations
 Content-Type: application/json
 
 ### 3. 페이지네이션 테스트 (2페이지, 10개씩)
-GET {{baseUrl}}/illustrations?page=2&limit=10
+GET {{baseUrl}}/illustrations?page=1&limit=10
 Content-Type: application/json
 
 ### 4. 팀 필터 (예: 검은양 팀 ID 1)
 GET {{baseUrl}}/illustrations?team_id=1
 Content-Type: application/json
 
-### 5. 캐릭터 필터 (예: 이세하 캐릭터 ID 1)
-GET {{baseUrl}}/illustrations?character_id=1
+### 5. 캐릭터 필터 (예: 이세하 캐릭터 ID 101)
+GET {{baseUrl}}/illustrations?character_id=101
 Content-Type: application/json
 
 ### 6. 대분류 필터 (예: 일러스트 대분류 ID 1)
@@ -47,4 +47,8 @@ Content-Type: application/json
 
 ### 12. 복합 필터 (여러 캐릭터 + 여러 테마)
 GET {{baseUrl}}/illustrations?character_id=3,2&theme_id=1,2
+Content-Type: application/json
+
+### 13. 캐릭터 필터
+GET {{baseUrl}}/characters/filter
 Content-Type: application/json
