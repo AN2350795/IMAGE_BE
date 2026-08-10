@@ -43,16 +43,16 @@ def seed():
         # --- 1. Populate Teams and Characters based on filter-char.json ---
         print("Populating Teams and Characters...")
         
-        # Build character full name map from output.json
-        char_fullname_map = {}
+        # Build character name map from output.json (fullname -> short name)
+        char_name_map = {}
         for item in output_data:
             t_name = item.get("team")
-            c_name = item.get("character")
+            c_short = item.get("character")
             c_full = item.get("character_fullname")
-            if t_name and c_name and c_full:
-                if t_name not in char_fullname_map:
-                    char_fullname_map[t_name] = {}
-                char_fullname_map[t_name][c_name] = c_full
+            if t_name and c_short and c_full:
+                if t_name not in char_name_map:
+                    char_name_map[t_name] = {}
+                char_name_map[t_name][c_full] = c_short
 
         team_idx = 1
         for team_name, team_info in filter_char_data.items():
@@ -68,18 +68,20 @@ def seed():
 
             char_idx = 1
             for char_info in team_info.get("characters", []):
-                char_name = char_info.get("name")
-                char_fullname = char_fullname_map.get(team_name, {}).get(char_name, char_name)
+                # filter-char.json 의 "name" 필드에는 풀네임(예: 윤리아, 김철수)이 들어있음
+                char_fullname = char_info.get("name")
+                # output.json 의 데이터를 바탕으로 풀네임에서 짧은 이름(예: 리아, 철수)을 찾음
+                char_shortname = char_name_map.get(team_name, {}).get(char_fullname, char_fullname)
                 
                 target_char_id = team_idx * 100 + char_idx
                 
                 char = db.query(Character).filter_by(id=target_char_id).first()
                 if not char:
-                    char = Character(id=target_char_id, name=char_name, fullname=char_fullname, team_id=team.id)
+                    char = Character(id=target_char_id, name=char_shortname, fullname=char_fullname, team_id=team.id)
                     db.add(char)
                     db.flush()
                 else:
-                    char.name = char_name
+                    char.name = char_shortname
                     char.fullname = char_fullname
                     char.team_id = team.id
                     db.flush()
