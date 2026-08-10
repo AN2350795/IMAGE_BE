@@ -1,31 +1,27 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 class TypeResponse(BaseModel):
     id: int
     name: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ThemeResponse(BaseModel):
     id: int
     name: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MajorResponse(BaseModel):
     id: int
     name: str
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CharacterResponse(BaseModel):
     id: int
     name: str
     fullname: str
     team_id: Optional[int]
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class IllustrationResponse(BaseModel):
     id: int
@@ -38,8 +34,7 @@ class IllustrationResponse(BaseModel):
     order: int
     is_new: bool
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class IllustrationListResponse(BaseModel):
     total: int
