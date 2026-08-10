@@ -42,24 +42,51 @@ def seed():
     try:
         # --- 1. Populate Teams and Characters based on filter-char.json ---
         print("Populating Teams and Characters...")
+        
+        # Build character full name map from output.json
+        char_fullname_map = {}
+        for item in output_data:
+            t_name = item.get("team")
+            c_name = item.get("character")
+            c_full = item.get("character_fullname")
+            if t_name and c_name and c_full:
+                if t_name not in char_fullname_map:
+                    char_fullname_map[t_name] = {}
+                char_fullname_map[t_name][c_name] = c_full
+
+        team_idx = 1
         for team_name, team_info in filter_char_data.items():
-            team = db.query(Team).filter_by(name=team_name).first()
+            team = db.query(Team).filter_by(id=team_idx).first()
             if not team:
-                team = Team(name=team_name)
+                team = Team(id=team_idx, name=team_name)
                 db.add(team)
                 db.flush() # flush to get ID
+            elif team.name != team_name:
+                team.name = team_name
+                db.flush()
             teams[team_name] = team
 
+            char_idx = 1
             for char_info in team_info.get("characters", []):
                 char_name = char_info.get("name")
-                char_fullname = f"{team_name} {char_name}"
+                char_fullname = char_fullname_map.get(team_name, {}).get(char_name, char_name)
                 
-                char = db.query(Character).filter_by(fullname=char_fullname).first()
+                target_char_id = team_idx * 100 + char_idx
+                
+                char = db.query(Character).filter_by(id=target_char_id).first()
                 if not char:
-                    char = Character(name=char_name, fullname=char_fullname, team_id=team.id)
+                    char = Character(id=target_char_id, name=char_name, fullname=char_fullname, team_id=team.id)
                     db.add(char)
                     db.flush()
+                else:
+                    char.name = char_name
+                    char.fullname = char_fullname
+                    char.team_id = team.id
+                    db.flush()
                 characters[char_fullname] = char
+                char_idx += 1
+            
+            team_idx += 1
         
         # --- 2. Populate Majors and Themes based on filter-theme.json ---
         print("Populating Majors and Themes...")
@@ -107,9 +134,7 @@ def seed():
             path = item.get("path")
             existing_ill = db.query(Illustration).filter(Illustration.path == path).first()
             if not existing_ill:
-                char_name = item.get("character_fullname")
-                team_name = item.get("team")
-                expected_char_fullname = f"{team_name} {char_name}"
+                expected_char_fullname = item.get("character_fullname")
                 
                 raw_major_name = item.get("major")
                 major_name = raw_major_name.replace(" 아바타", "") if raw_major_name else None
