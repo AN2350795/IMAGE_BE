@@ -60,3 +60,7 @@ Content-Type: application/json
 ### 14. 테마 필터 (일러스트, 레어, 유니크, 수영복 전체 목록)
 GET {{baseUrl}}/themes/filter
 Content-Type: application/json
+
+### 15. 유형 필터 (전체 유형 목록)
+GET {{baseUrl}}/types/filter
+Content-Type: application/json

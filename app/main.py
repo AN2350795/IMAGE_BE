@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import health, illustrations, characters, themes
+from app.routers import health, illustrations, characters, themes, types
 
 app = FastAPI(title="IMAGE_BE")
 
@@ -8,6 +8,7 @@ app.include_router(health.router)
 app.include_router(illustrations.router)
 app.include_router(characters.router)
 app.include_router(themes.router)
+app.include_router(types.router)
 
 @app.get("/")
 def read_root():
