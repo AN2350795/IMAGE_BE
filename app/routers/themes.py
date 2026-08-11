@@ -1,55 +1,52 @@
-import json
-import os
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from app.database import get_db
-from app.models import Major, Theme
+from app.models import Major, Theme, Illustration
 
 router = APIRouter(
     prefix="/themes",
     tags=["themes"]
 )
 
-# Load the theme filter configuration
-FILTER_THEME_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
-    "data", "seed", "filter-theme.json"
-)
+# 인메모리 캐시 변수
+_THEME_FILTER_CACHE: Optional[Dict[str, Any]] = None
 
 @router.get("/filter", response_model=Dict[str, Any])
 def get_theme_filters(db: Session = Depends(get_db)):
-    try:
-        with open(FILTER_THEME_PATH, "r", encoding="utf-8") as f:
-            filter_data = json.load(f)
-    except FileNotFoundError:
-        filter_data = {}
+    global _THEME_FILTER_CACHE
+    
+    # 1. 캐시 히트 시 즉시 반환
+    if _THEME_FILTER_CACHE is not None:
+        return _THEME_FILTER_CACHE
 
-    majors = db.query(Major).all()
-    themes = db.query(Theme).all()
-
-    major_map = {m.name: m.id for m in majors}
-    theme_map = {t.name: t.id for t in themes}
+    # 2. DB를 통해 Major와 Theme 계층 구조 조회
+    # (Illustration 테이블을 통해 두 테이블 간의 연관 관계를 확인)
+    results = db.query(Major, Theme)\
+        .join(Illustration, Illustration.major_id == Major.id)\
+        .join(Theme, Illustration.theme_id == Theme.id)\
+        .distinct()\
+        .all()
 
     result = {}
-    for major_name, major_info in filter_data.items():
-        major_id = major_map.get(major_name)
+    for major, theme in results:
+        major_name = major.name
         
-        options = []
-        for opt in major_info.get("options", []):
-            theme_name = opt.get("value")
-            theme_id = theme_map.get(theme_name)
+        # 대분류가 처음 등장하면 뼈대 생성
+        if major_name not in result:
+            result[major_name] = {
+                "major_id": major.id,
+                "options": []
+            }
             
-            options.append({
-                "theme_id": theme_id,
-                "value": theme_name,
-                "label": opt.get("label")
-            })
-            
-        result[major_name] = {
-            "major_id": major_id,
-            "options": options
-        }
+        # 해당 대분류의 테마 옵션 추가
+        result[major_name]["options"].append({
+            "theme_id": theme.id,
+            "value": theme.name,
+            "label": theme.name
+        })
 
+    # 3. 결과 캐싱 및 반환
+    _THEME_FILTER_CACHE = result
     return result
