@@ -5,24 +5,21 @@ from typing import Dict, Any, Optional
 from app.database import get_db
 from app.models import Major, Theme, Illustration
 
+from cachetools import cached, TTLCache
+
 router = APIRouter(
     prefix="/themes",
     tags=["themes"]
 )
 
-# 인메모리 캐시 변수
-_THEME_FILTER_CACHE: Optional[Dict[str, Any]] = None
+# 최대 1개 항목 보관, 1시간(3600초)마다 만료되는 캐시 생성
+theme_filter_cache = TTLCache(maxsize=1, ttl=3600)
 
 @router.get("/filter", response_model=Dict[str, Any])
+@cached(theme_filter_cache)
 def get_theme_filters(db: Session = Depends(get_db)):
-    global _THEME_FILTER_CACHE
-    
-    # 1. 캐시 히트 시 즉시 반환
-    if _THEME_FILTER_CACHE is not None:
-        return _THEME_FILTER_CACHE
 
-    # 2. DB를 통해 Major와 Theme 계층 구조 조회
-    # (Illustration 테이블을 통해 두 테이블 간의 연관 관계를 확인)
+    # Major와 Theme 계층 구조 조회
     results = db.query(Major, Theme)\
         .join(Illustration, Illustration.major_id == Major.id)\
         .join(Theme, Illustration.theme_id == Theme.id)\
@@ -47,6 +44,4 @@ def get_theme_filters(db: Session = Depends(get_db)):
             "label": theme.name
         })
 
-    # 3. 결과 캐싱 및 반환
-    _THEME_FILTER_CACHE = result
     return result
