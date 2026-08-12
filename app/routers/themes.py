@@ -41,7 +41,7 @@ def get_theme_filters(db: Session = Depends(get_db)):
         result[major_name]["options"].append({
             "theme_id": theme.id,
             "value": theme.name,
-            "label": theme.name
+            "label": theme.label or theme.name
         })
 
     return result

@@ -102,10 +102,14 @@ def seed():
 
             for theme_info in major_info.get("options", []):
                 theme_name = theme_info.get("value")
+                theme_label = theme_info.get("label")
                 theme = db.query(Theme).filter_by(name=theme_name).first()
                 if not theme:
-                    theme = Theme(name=theme_name)
+                    theme = Theme(name=theme_name, label=theme_label)
                     db.add(theme)
+                    db.flush()
+                elif theme.label != theme_label:
+                    theme.label = theme_label
                     db.flush()
                 themes[theme_name] = theme
 

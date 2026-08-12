@@ -41,6 +41,7 @@ class Theme(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, index=True, nullable=False)
+    label = Column(String(100), nullable=True)
 
     illustrations = relationship("Illustration", back_populates="theme")
 
