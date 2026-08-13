@@ -16,9 +16,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    # starlette 의 TestClient 가 httpx 대신 httpx2 를 쓰도록 바뀌었다.
-    "httpx2",
-    "pytest",
     "ruff",
 ]
 
@@ -31,7 +28,3 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 # FastAPI 는 Depends() 를 기본 인자로 두는 것이 정상 패턴이다.
 ignore = ["B008"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-# 저장소를 패키지로 설치하지 않으므로 app 을 임포트할 수 있게 루트를 경로에 넣는다.
-pythonpath = ["."]
