@@ -125,12 +125,32 @@ uv run ruff format .          # 포맷
 | `filter-theme.json` | 테마 필터 옵션 |
 | `output.json` | 이미지 메타데이터 전체 목록 |
 
+### 상황별 데이터베이스 작업 가이드
+
+**1. 처음 Clone 해서 작업할 때 (초기 세팅)**
+기본 패키지를 설치하고 전체 데이터를 시딩합니다.
 ```bash
-uv run python scripts/seed.py
+uv sync
+uv run python scripts/drop_db.py  # (선택) 기존 DB 초기화
+uv run python scripts/seed_data.py
 ```
 
-현재는 ORM 모델이 없어 파일을 읽어 건수를 확인하는 것까지만 동작한다.
-모델이 추가되면 `scripts/seed.py` 에 적재 로직을 이어서 작성한다.
+**2. 다른 곳의 작업을 Pull 했을 때 (DB 스키마 변동 의심 시)**
+모델(`models.py`) 구조가 변경되었다면 스키마 충돌을 막기 위해 DB를 재설정합니다.
+```bash
+uv sync
+uv run python scripts/drop_db.py
+uv run python scripts/seed_data.py
+```
+
+**3. JSON 데이터(`data/seed/*.json`)만 업데이트된 경우**
+DB 스키마 변경 없이 데이터만 추가/수정된 경우, 기존 데이터를 유지하며 **변경분만 고속으로 동기화(Upsert)** 합니다. DB를 초기화할 필요가 없습니다.
+```bash
+uv run python scripts/seed_data.py
+```
+
+**4. 주의사항 (에러 방지)**
+`ModuleNotFoundError`를 방지하기 위해, 파이썬 스크립트 실행 시 반드시 **`uv run`**을 앞에 붙여 프로젝트 가상 환경에서 실행해야 합니다.
 
 ## 동작 확인
 
@@ -141,8 +161,20 @@ GET http://127.0.0.1:8000/health/db  # {"database": "ok"}
 
 `requests/api.http` 파일로도 바로 호출해 볼 수 있다.
 
-## 알려진 제약
+## 데이터베이스 마이그레이션 (Alembic)
 
-데이터베이스 스키마는 `docker/mysql/init/01-charset.sql` 로만 관리된다. 이 스크립트는
-볼륨이 비어 있는 최초 1회에만 실행되므로 머신 간 스키마 동기화 수단이 되지 못한다.
-모델이 생기기 시작하면 Alembic 같은 마이그레이션 도구로 옮기는 것이 좋다.
+데이터베이스 스키마 변경 이력을 관리하고 각 환경(로컬, 배포) 간 일관성을 유지하기 위해 **Alembic**을 사용한다.
+
+**1. 모델 변경 후 마이그레이션 생성**
+ORM 모델(`app/database.py`의 `Base`를 상속한 클래스들)을 추가하거나 수정한 뒤, 아래 명령어로 변경 사항이 담긴 스크립트를 생성한다.
+
+```bash
+uv run alembic revision --autogenerate -m "마이그레이션 설명(예: create users table)"
+```
+
+**2. 마이그레이션 적용 (DB 구조 업데이트)**
+위에서 생성된 스크립트 혹은 다른 팀원이 추가한 변경사항을 현재 DB에 반영한다.
+
+```bash
+uv run alembic upgrade head
+```
